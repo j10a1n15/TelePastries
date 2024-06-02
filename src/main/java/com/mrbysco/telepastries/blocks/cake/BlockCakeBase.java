@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -57,7 +58,7 @@ public class BlockCakeBase extends BlockPastryBase {
 
 	public BlockCakeBase(BlockBehaviour.Properties properties) {
 		super(properties.strength(0.5F).sound(SoundType.WOOL).randomTicks());
-		this.registerDefaultState(this.stateDefinition.any().setValue(BITES, Integer.valueOf(0)));
+		this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0));
 	}
 
 	@Override
@@ -67,12 +68,13 @@ public class BlockCakeBase extends BlockPastryBase {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-		ItemStack stack = player.getItemInHand(handIn);
+	protected ItemInteractionResult useItemOn(
+			ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result
+	) {
 		if (consumeCake() && isRefillItem(stack)) {
 			int i = state.getValue(BITES);
 			if (i > 0) {
-				level.setBlock(pos, state.setValue(BITES, Integer.valueOf(i - 1)), 3);
+				level.setBlock(pos, state.setValue(BITES, i - 1), 3);
 			}
 			if (!player.getAbilities().instabuild) {
 				stack.shrink(1);
@@ -87,7 +89,7 @@ public class BlockCakeBase extends BlockPastryBase {
 					if (stack.getItem() == Items.MILK_BUCKET) {
 						if (!player.getAbilities().instabuild) {
 							stack.shrink(1);
-							player.setItemInHand(handIn, new ItemStack(Items.BUCKET));
+							player.setItemInHand(hand, new ItemStack(Items.BUCKET));
 						}
 					}
 				} else {
@@ -101,11 +103,11 @@ public class BlockCakeBase extends BlockPastryBase {
 				} else {
 					player.displayClientMessage(Component.translatable("telepastries.teleport_restricted"), true);
 				}
-				return InteractionResult.PASS;
+				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 			}
 		}
 
-		return InteractionResult.FAIL;
+		return ItemInteractionResult.FAIL;
 	}
 
 	public boolean canTeleportTo(ResourceLocation location, ResourceLocation toLocation) {
@@ -145,7 +147,7 @@ public class BlockCakeBase extends BlockPastryBase {
 				if (!player.getAbilities().instabuild) {
 					int i = state.getValue(BITES);
 					if (i < 6) {
-						levelAccessor.setBlock(pos, state.setValue(BITES, Integer.valueOf(i + 1)), 3);
+						levelAccessor.setBlock(pos, state.setValue(BITES, i + 1), 3);
 					} else {
 						levelAccessor.removeBlock(pos, false);
 					}
@@ -165,7 +167,7 @@ public class BlockCakeBase extends BlockPastryBase {
 
 	private boolean isResetItem(ItemStack stack) {
 		List<? extends String> items = TeleConfig.COMMON.resetItems.get();
-		if (items == null || items.isEmpty()) return false;
+		if (items.isEmpty()) return false;
 		ResourceLocation registryLocation = BuiltInRegistries.ITEM.getKey(stack.getItem());
 		return registryLocation != null && items.contains(registryLocation.toString());
 	}

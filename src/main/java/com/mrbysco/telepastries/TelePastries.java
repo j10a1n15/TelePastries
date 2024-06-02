@@ -1,13 +1,12 @@
 package com.mrbysco.telepastries;
 
 import com.mojang.logging.LogUtils;
-import com.mrbysco.telepastries.compat.top.TeleTOPCompat;
 import com.mrbysco.telepastries.config.TeleConfig;
 import com.mrbysco.telepastries.handler.ExplosionHandler;
 import com.mrbysco.telepastries.init.TeleRegistry;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
@@ -18,8 +17,8 @@ import org.slf4j.Logger;
 public class TelePastries {
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public TelePastries(IEventBus eventBus) {
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, TeleConfig.commonSpec);
+	public TelePastries(IEventBus eventBus, ModContainer container) {
+		container.registerConfig(ModConfig.Type.COMMON, TeleConfig.commonSpec);
 		eventBus.register(TeleConfig.class);
 
 		eventBus.addListener(this::sendImc);
@@ -33,7 +32,7 @@ public class TelePastries {
 
 	public void sendImc(InterModEnqueueEvent event) {
 		if (ModList.get().isLoaded("theoneprobe")) {
-			TeleTOPCompat.register();
+			com.mrbysco.telepastries.compat.top.TeleTOPCompat.register();
 		}
 	}
 }

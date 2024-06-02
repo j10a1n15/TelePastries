@@ -3,7 +3,6 @@ package com.mrbysco.telepastries.generator.client;
 import com.mrbysco.telepastries.Reference;
 import com.mrbysco.telepastries.blocks.cake.BlockCakeBase;
 import com.mrbysco.telepastries.init.TeleRegistry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;

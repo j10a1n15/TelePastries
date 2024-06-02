@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -30,8 +31,8 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.ITeleporter;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.util.ITeleporter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -92,12 +93,14 @@ public class CakeTeleporter implements ITeleporter {
 			if (pedestalState.getBlock() instanceof BlockCakeBase) continue;
 
 			// If the position is beneath the entity and isn't solid, set to obsidian
-			if(pedestalPos.getY() == minY && !pedestalState.isSolid()) destWorld.setBlockAndUpdate(pedestalPos, Blocks.OBSIDIAN.defaultBlockState());
-			// Otherwise, if the position is surrounding the entity and isn't solid, set to cobblestone
+			if (pedestalPos.getY() == minY && !pedestalState.isSolid())
+				destWorld.setBlockAndUpdate(pedestalPos, Blocks.OBSIDIAN.defaultBlockState());
+				// Otherwise, if the position is surrounding the entity and isn't solid, set to cobblestone
 			else if ((pedestalPos.getY() == maxY || pedestalPos.getX() == minX || pedestalPos.getX() == maxX || pedestalPos.getZ() == minZ || pedestalPos.getZ() == maxZ) && !pedestalState.isSolid())
 				destWorld.setBlockAndUpdate(pedestalPos, Blocks.COBBLESTONE.defaultBlockState());
-			// Otherwise, just set to air if the entity can't spawn in it
-			else if (!pedestalState.getBlock().isPossibleToRespawnInThis(pedestalState)) destWorld.setBlockAndUpdate(pedestalPos, Blocks.AIR.defaultBlockState());
+				// Otherwise, just set to air if the entity can't spawn in it
+			else if (!pedestalState.getBlock().isPossibleToRespawnInThis(pedestalState))
+				destWorld.setBlockAndUpdate(pedestalPos, Blocks.AIR.defaultBlockState());
 		}
 
 		// Create info
@@ -107,9 +110,9 @@ public class CakeTeleporter implements ITeleporter {
 	/**
 	 * Search eight blocks around the current block and check down to determine where to teleport.
 	 *
-	 * @param entity the entity attempting to spawn at the location
-	 * @param destWorld the level the entity is teleporting to
-	 * @param cacheMap a cache to prevent additional lookups to the position
+	 * @param entity       the entity attempting to spawn at the location
+	 * @param destWorld    the level the entity is teleporting to
+	 * @param cacheMap     a cache to prevent additional lookups to the position
 	 * @param minMaxBounds the bounds of the y position the entity can spawn within
 	 * @return the portal information to teleport to, or {@code null} if there is none
 	 */
@@ -121,7 +124,7 @@ public class CakeTeleporter implements ITeleporter {
 				.atY(Math.min(minMaxBounds.getSecond(), destWorld.getMinBuildHeight() + destWorld.getLogicalHeight()) - 1);
 
 		// No spawn position or isn't valid, so loop around location
-		for (var checkPos: BlockPos.spiralAround(spawnPos, 16, Direction.EAST, Direction.SOUTH)) {
+		for (var checkPos : BlockPos.spiralAround(spawnPos, 16, Direction.EAST, Direction.SOUTH)) {
 			// Load chunk to actually check the location
 			destWorld.getChunk(checkPos);
 
@@ -147,10 +150,9 @@ public class CakeTeleporter implements ITeleporter {
 	/**
 	 * Set the portal information to the end's spawn point.
 	 *
-	 * @param entity the entity attempting to spawn at the location
+	 * @param entity    the entity attempting to spawn at the location
 	 * @param destWorld the level the entity is teleporting to
 	 * @return the portal information to teleport to, or {@code null} if there is none
-	 *
 	 * @deprecated this should be removed in favor of a datagen solution
 	 */
 	@Deprecated
@@ -178,9 +180,11 @@ public class CakeTeleporter implements ITeleporter {
 			if (pedestalState.getBlock() instanceof BlockCakeBase) continue;
 
 			// If the position is beneath the entity and isn't solid, set to obsidian
-			if(pedestalPos.getY() == minY && !pedestalState.isSolid()) destWorld.setBlockAndUpdate(pedestalPos, Blocks.OBSIDIAN.defaultBlockState());
-			// Otherwise, just set to air if the entity can't spawn in it
-			else if (!pedestalState.getBlock().isPossibleToRespawnInThis(pedestalState)) destWorld.setBlockAndUpdate(pedestalPos, Blocks.AIR.defaultBlockState());
+			if (pedestalPos.getY() == minY && !pedestalState.isSolid())
+				destWorld.setBlockAndUpdate(pedestalPos, Blocks.OBSIDIAN.defaultBlockState());
+				// Otherwise, just set to air if the entity can't spawn in it
+			else if (!pedestalState.getBlock().isPossibleToRespawnInThis(pedestalState))
+				destWorld.setBlockAndUpdate(pedestalPos, Blocks.AIR.defaultBlockState());
 		}
 
 		return postProcessAndMake(destWorld, teleportPos, entity);
@@ -189,10 +193,10 @@ public class CakeTeleporter implements ITeleporter {
 	/**
 	 * Checks if all blocks within the entity's bounding box is safe to spawn in.
 	 *
-	 * @param entity the entity attempting to spawn at the location
-	 * @param destWorld the level the entity is teleporting to
-	 * @param checkPos the position the entity is trying to be spawned at
-	 * @param cacheMap a cache to prevent additional lookups to the position
+	 * @param entity       the entity attempting to spawn at the location
+	 * @param destWorld    the level the entity is teleporting to
+	 * @param checkPos     the position the entity is trying to be spawned at
+	 * @param cacheMap     a cache to prevent additional lookups to the position
 	 * @param minMaxBounds the bounds of the y position the entity can spawn within
 	 * @return {@code true} if it is safe for the entity to spawn here, {@code false} otherwise
 	 */
@@ -202,7 +206,7 @@ public class CakeTeleporter implements ITeleporter {
 		// We could use the AABB method; however we want to account fo edge cases where the entity is touching a corner with
 		// the box, causing the safety check to fail and change the spawn position.
 		// This is also why we round to the higher or lower value
-		for (var entityBoxPos: BlockPos.betweenClosed(
+		for (var entityBoxPos : BlockPos.betweenClosed(
 				Math.round(checkPos.getX() - halfWidth),
 				checkPos.getY(),
 				Math.round(checkPos.getZ() - halfWidth),
@@ -215,7 +219,8 @@ public class CakeTeleporter implements ITeleporter {
 					entityBoxPos.asLong(),
 					c -> {
 						// Check if position is within bounds or that the position's min build height is higher than the spawning position
-						if (!destWorld.getWorldBorder().isWithinBounds(entityBoxPos) || minMaxBounds.getFirst() >= entityBoxPos.getY()) return false;
+						if (!destWorld.getWorldBorder().isWithinBounds(entityBoxPos) || minMaxBounds.getFirst() >= entityBoxPos.getY())
+							return false;
 						// Get block state and check if it is possible to respawn
 						BlockState entityBoxState = destWorld.getBlockState(entityBoxPos);
 						return entityBoxState.getBlock().isPossibleToRespawnInThis(entityBoxState);
@@ -245,13 +250,22 @@ public class CakeTeleporter implements ITeleporter {
 
 		if (dim == Level.END) {
 			BlockPos spawnPlatform = ServerLevel.END_SPAWN_POINT;
-			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", entityIn.getDisplayName().getContents(), dimLocation, spawnPlatform);
+			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, spawnPlatform);
 			data.putLong(Reference.MOD_PREFIX + dimLocation, spawnPlatform.asLong());
 		} else {
-			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", entityIn.getDisplayName().getContents(), dimLocation, position);
+			Component name = entityIn instanceof Player ? entityIn.getDisplayName() : entityIn.getName();
+			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, position);
 			data.putLong(Reference.MOD_PREFIX + dimLocation, position.asLong());
 		}
 		entityData.put(Player.PERSISTED_NBT_TAG, data);
+	}
+
+	private static String getEntityName(Entity entityIn) {
+		Component name = entityIn instanceof Player ? entityIn.getDisplayName() : entityIn.getName();
+		if (name == null) {
+			name = Component.literal(entityIn.getType().toString());
+		}
+		return name.getString();
 	}
 
 	@Nullable
@@ -262,13 +276,14 @@ public class CakeTeleporter implements ITeleporter {
 
 		if (data.contains(Reference.MOD_PREFIX + dimLocation)) {
 			BlockPos dimPos = BlockPos.of(data.getLong(Reference.MOD_PREFIX + dimLocation));
-			TelePastries.LOGGER.debug("Found {}'s position of {} to: {}", entityIn.getDisplayName().getContents(), dimLocation, dimPos);
+			TelePastries.LOGGER.debug("Found {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, dimPos);
 			return dimPos;
 		}
 
-		TelePastries.LOGGER.debug("Could not find {}'s previous location. Using current location", entityIn.getDisplayName().getContents());
+		TelePastries.LOGGER.debug("Could not find {}'s previous location. Using current location", getEntityName(entityIn));
 		return null;
 	}
+
 	private static CompoundTag getTag(CompoundTag tag) {
 		if (tag == null || !tag.contains(Player.PERSISTED_NBT_TAG)) {
 			return new CompoundTag();
@@ -320,8 +335,8 @@ public class CakeTeleporter implements ITeleporter {
 	 * Sets the spawn location of the entity in compatible levels.
 	 *
 	 * @param destWorld the level the entity is teleporting to
-	 * @param pos the position the entity is trying to be spawned at
-	 * @param entity the entity attempting to spawn at the location
+	 * @param pos       the position the entity is trying to be spawned at
+	 * @param entity    the entity attempting to spawn at the location
 	 */
 	private static PortalInfo postProcessAndMake(ServerLevel destWorld, BlockPos pos, Entity entity) {
 		// Set overworld back to respawn position when using cake.
@@ -356,7 +371,7 @@ public class CakeTeleporter implements ITeleporter {
 	 * Creates the portal info based on the given block position.
 	 *
 	 * @param entity the entity attempting to spawn at the location
-	 * @param pos the position the entity is trying to be spawned at
+	 * @param pos    the position the entity is trying to be spawned at
 	 * @return the information necessary to teleport the entity
 	 */
 	private static PortalInfo makePortalInfo(Entity entity, BlockPos pos) {
@@ -372,9 +387,9 @@ public class CakeTeleporter implements ITeleporter {
 		/**
 		 * Determine where to teleport the entity for the given level.
 		 *
-		 * @param entity the entity attempting to spawn at the location
-		 * @param destWorld the level the entity is teleporting to
-		 * @param cacheMap a cache to prevent additional lookups to the position
+		 * @param entity       the entity attempting to spawn at the location
+		 * @param destWorld    the level the entity is teleporting to
+		 * @param cacheMap     a cache to prevent additional lookups to the position
 		 * @param minMaxBounds the bounds of the y position the entity can spawn within
 		 * @return the portal information to teleport to, or {@code null} if there is none
 		 */

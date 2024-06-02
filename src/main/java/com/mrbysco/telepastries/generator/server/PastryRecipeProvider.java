@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PastryRecipeProvider extends RecipeProvider {
 	public PastryRecipeProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-		super(packOutput);
+		super(packOutput, lookupProvider);
 	}
 
 	@Override
@@ -36,9 +36,9 @@ public class PastryRecipeProvider extends RecipeProvider {
 				.pattern("OCO")
 				.pattern("OOO")
 				.define('C', Items.CAKE)
-				.define('O', Tags.Items.OBSIDIAN)
+				.define('O', Tags.Items.OBSIDIANS)
 				.unlockedBy("has_cake", has(Items.CAKE))
-				.unlockedBy("has_obsidian", has(Tags.Items.OBSIDIAN))
+				.unlockedBy("has_obsidian", has(Tags.Items.OBSIDIANS))
 				.save(recipeOutput);
 
 		ShapedRecipeBuilder.shaped(RecipeCategory.TRANSPORTATION, TeleRegistry.OVERWORLD_CAKE.get())

@@ -43,7 +43,6 @@ public class TeleRegistry {
 	public static final DeferredBlock<BlockCustomCake> CUSTOM_CAKE = BLOCKS.register("custom_cake", () -> new BlockCustomCake(BlockBehaviour.Properties.ofFullCopy(Blocks.CAKE).strength(0.5F).sound(SoundType.WOOL)));
 	public static final DeferredBlock<BlockCustomCake2> CUSTOM_CAKE2 = BLOCKS.register("custom_cake2", () -> new BlockCustomCake2(BlockBehaviour.Properties.ofFullCopy(Blocks.CAKE).strength(0.5F).sound(SoundType.WOOL)));
 	public static final DeferredBlock<BlockCustomCake3> CUSTOM_CAKE3 = BLOCKS.register("custom_cake3", () -> new BlockCustomCake3(BlockBehaviour.Properties.ofFullCopy(Blocks.CAKE).strength(0.5F).sound(SoundType.WOOL)));
-//   public static final DeferredBlock<BlockHuntingDimensionCake> HUNTING_DIMENSION_CAKE = BLOCKS.register("hunting_dimension_cake", () -> new BlockHuntingDimensionCake("hunting_dimension_cake"));
 
 	public static final DeferredItem<CakeBlockItem> NETHER_CAKE_ITEM = ITEMS.register("nether_cake", () -> new CakeBlockItem(NETHER_CAKE.get(), new Item.Properties()));
 	public static final DeferredItem<CakeBlockItem> END_CAKE_ITEM = ITEMS.register("end_cake", () -> new CakeBlockItem(END_CAKE.get(), new Item.Properties()));

@@ -10,13 +10,12 @@ plugins {
 
 version = "${version}"
 group = "${mod_group}"
-
 base {
     archivesName = "${mod_archive_name}-${mc_version}"
 }
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+// Mojang ships Java 21 to end users in 1.20.5+, so your mod should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 //minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 //minecraft.accessTransformers.entry public net.minecraft.client.Minecraft textureManager # textureManager
@@ -79,13 +78,13 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+//    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+//    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
 
-    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+//    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
 
-    implementation "curse.maven:jade-324717:5109393" //Jade (WAILA)
-    implementation "curse.maven:TheOneProbe-245211:5084077" //The One Probe (TOP)
+    implementation "curse.maven:jade-324717:5366595" //Jade (WAILA)
+    compileOnly "curse.maven:TheOneProbe-245211:5304322" //The One Probe (TOP)
 
 //    runtimeOnly "teamtwilight:twilightforest:${twilight_forest_version}:universal"
 }
@@ -163,6 +162,10 @@ if (System.getenv().MODRINTH_KEY) {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
