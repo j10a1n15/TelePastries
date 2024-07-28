@@ -1,9 +1,9 @@
-// 1.20.6	2024-06-02T16:53:58.0699303	Loot Tables
-45c77a6d516d0d226b0e40eeb49a3613ecd9ce5a data/telepastries/loot_tables/blocks/custom_cake.json
-466c7c84761ac5fbd61c289e0e469391364a001d data/telepastries/loot_tables/blocks/custom_cake2.json
-e908d55d357142ade4575859318c07b045edcc61 data/telepastries/loot_tables/blocks/custom_cake3.json
-86bcae40b0e899e2f235b1a565ac980974ecdf02 data/telepastries/loot_tables/blocks/end_cake.json
-98165b9ef94fcf329035536cef7900429db7a139 data/telepastries/loot_tables/blocks/lost_city_cake.json
-d14f3da051b649c9f6fd017d66b237e284e29a5a data/telepastries/loot_tables/blocks/nether_cake.json
-ee77bff69ee752a3b4bbf09c0dc5d6605f195073 data/telepastries/loot_tables/blocks/overworld_cake.json
-9f1a9ac0d34ab5e2695926c9a81d5815a11eae7a data/telepastries/loot_tables/blocks/twilight_cake.json
+// 1.21	2024-07-28T19:47:53.2201922	Loot Tables
+45c77a6d516d0d226b0e40eeb49a3613ecd9ce5a data/telepastries/loot_table/blocks/custom_cake.json
+466c7c84761ac5fbd61c289e0e469391364a001d data/telepastries/loot_table/blocks/custom_cake2.json
+e908d55d357142ade4575859318c07b045edcc61 data/telepastries/loot_table/blocks/custom_cake3.json
+86bcae40b0e899e2f235b1a565ac980974ecdf02 data/telepastries/loot_table/blocks/end_cake.json
+98165b9ef94fcf329035536cef7900429db7a139 data/telepastries/loot_table/blocks/lost_city_cake.json
+d14f3da051b649c9f6fd017d66b237e284e29a5a data/telepastries/loot_table/blocks/nether_cake.json
+ee77bff69ee752a3b4bbf09c0dc5d6605f195073 data/telepastries/loot_table/blocks/overworld_cake.json
+9f1a9ac0d34ab5e2695926c9a81d5815a11eae7a data/telepastries/loot_table/blocks/twilight_cake.json

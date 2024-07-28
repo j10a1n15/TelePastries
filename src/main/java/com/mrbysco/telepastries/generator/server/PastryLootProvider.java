@@ -32,8 +32,8 @@ public class PastryLootProvider extends LootTableProvider {
 
 	private static class TeleBlocks extends BlockLootSubProvider {
 
-		protected TeleBlocks() {
-			super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+		protected TeleBlocks(HolderLookup.Provider provider) {
+			super(Set.of(), FeatureFlags.REGISTRY.allFlags(), provider);
 		}
 
 		@Override

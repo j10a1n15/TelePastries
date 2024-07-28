@@ -20,8 +20,8 @@ public class BlockOverworldCake extends BlockCakeBase {
 	}
 
 	@Override
-	public void teleportToDimension(LevelAccessor world, BlockPos pos, Player player) {
-		super.teleportToDimension(world, pos, player);
+	public void teleportToDimension(LevelAccessor levelAccessor, BlockPos pos, Player player) {
+		super.teleportToDimension(levelAccessor, pos, player);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class BlockOverworldCake extends BlockCakeBase {
 
 	@Override
 	public ResourceKey<Level> getCakeWorld() {
-		return ResourceKey.create(Registries.DIMENSION, new ResourceLocation("overworld"));
+		return ResourceKey.create(Registries.DIMENSION, ResourceLocation.withDefaultNamespace("overworld"));
 	}
 
 	@Override

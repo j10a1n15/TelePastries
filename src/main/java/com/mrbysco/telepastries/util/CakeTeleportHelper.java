@@ -29,23 +29,25 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.world.level.levelgen.feature.EndPlatformFeature;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.common.util.ITeleporter;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
-
-public class CakeTeleporter implements ITeleporter {
+public class CakeTeleportHelper {
 
 	private static final Object2ObjectMap<ResourceKey<Level>, LevelTeleportFinder> LEVEL_TELEPORTERS = Util.make(new Object2ObjectOpenHashMap<>(), map ->
 			map.put(ServerLevel.END, (entity, destWorld, minMaxBounds, cacheMap) -> toEnd(entity, destWorld))
 	);
 
 	@Nullable
-	@Override
-	public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo) {
+	public static DimensionTransition getCakeTeleportData(ServerLevel destWorld, Entity entity) {
+		entity.fallDistance = 0;
+		if (entity instanceof LivingEntity livingEntity) { //Give resistance
+			livingEntity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 200, false, false));
+		}
+
 		// First, check if there is already an existing position to pull from
 		// If the position doesn't exist, use the current entity's current position clamped between the build heights
 		BlockPos spawnPos = getDimensionPosition(entity, destWorld.dimension());
@@ -63,7 +65,7 @@ public class CakeTeleporter implements ITeleporter {
 
 		// Check level teleporter to determine portal info
 		@Nullable
-		PortalInfo levelInfo = LEVEL_TELEPORTERS.getOrDefault(destWorld.dimension(), CakeTeleporter::searchAroundAndDown).determineTeleportLocation(entity, destWorld, minMaxBounds, safeLocation);
+		DimensionTransition levelInfo = LEVEL_TELEPORTERS.getOrDefault(destWorld.dimension(), CakeTeleportHelper::searchAroundAndDown).determineTeleportLocation(entity, destWorld, minMaxBounds, safeLocation);
 		if (levelInfo != null) {
 			return levelInfo;
 		}
@@ -117,7 +119,7 @@ public class CakeTeleporter implements ITeleporter {
 	 * @return the portal information to teleport to, or {@code null} if there is none
 	 */
 	@Nullable
-	private static PortalInfo searchAroundAndDown(Entity entity, ServerLevel destWorld, Pair<Integer, Integer> minMaxBounds, Long2BooleanArrayMap cacheMap) {
+	private static DimensionTransition searchAroundAndDown(Entity entity, ServerLevel destWorld, Pair<Integer, Integer> minMaxBounds, Long2BooleanArrayMap cacheMap) {
 		// Set y position to max possible
 		double dimensionScale = DimensionType.getTeleportationScale(entity.level().dimensionType(), destWorld.dimensionType());
 		BlockPos spawnPos = destWorld.getWorldBorder().clampToBounds(entity.blockPosition().getX() * dimensionScale, entity.blockPosition().getY(), entity.blockPosition().getZ() * dimensionScale)
@@ -156,36 +158,11 @@ public class CakeTeleporter implements ITeleporter {
 	 * @deprecated this should be removed in favor of a datagen solution
 	 */
 	@Deprecated
-	private static PortalInfo toEnd(Entity entity, ServerLevel destWorld) {
+	private static DimensionTransition toEnd(Entity entity, ServerLevel destWorld) {
 		// Get teleport position
 		BlockPos teleportPos = ServerLevel.END_SPAWN_POINT;
-
-		// Get space around entity and below
-		var halfWidth = entity.getBbWidth() / 2;
-		int minY = teleportPos.getY() - 1;
-
-		// Spawn platform
-		for (var pedestalPos : BlockPos.betweenClosed(
-				Mth.floor(teleportPos.getX() - halfWidth),
-				minY,
-				Mth.floor(teleportPos.getZ() - halfWidth),
-				Mth.ceil(teleportPos.getX() + halfWidth),
-				Mth.ceil(teleportPos.getY() + entity.getBbHeight() + 1),
-				Mth.ceil(teleportPos.getZ() + halfWidth)
-		)) {
-			// Get the block position to check
-			BlockState pedestalState = destWorld.getBlockState(pedestalPos);
-
-			// Don't do anything if the block is a cake
-			if (pedestalState.getBlock() instanceof BlockCakeBase) continue;
-
-			// If the position is beneath the entity and isn't solid, set to obsidian
-			if (pedestalPos.getY() == minY && !pedestalState.isSolid())
-				destWorld.setBlockAndUpdate(pedestalPos, Blocks.OBSIDIAN.defaultBlockState());
-				// Otherwise, just set to air if the entity can't spawn in it
-			else if (!pedestalState.getBlock().isPossibleToRespawnInThis(pedestalState))
-				destWorld.setBlockAndUpdate(pedestalPos, Blocks.AIR.defaultBlockState());
-		}
+		Vec3 vec3 = teleportPos.getBottomCenter();
+		EndPlatformFeature.createEndPlatform(destWorld, BlockPos.containing(vec3).below(), true);
 
 		return postProcessAndMake(destWorld, teleportPos, entity);
 	}
@@ -234,29 +211,22 @@ public class CakeTeleporter implements ITeleporter {
 		return true;
 	}
 
-	@Override
-	public Entity placeEntity(Entity newEntity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-		newEntity.fallDistance = 0;
-		if (newEntity instanceof LivingEntity) { //Give resistance
-			((LivingEntity) newEntity).addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 200, false, false));
-		}
-		return repositionEntity.apply(false); //Must be false or we fall on vanilla
-	}
-
 	public static void addDimensionPosition(Entity entityIn, ResourceKey<Level> dim, BlockPos position) {
 		CompoundTag entityData = entityIn.getPersistentData();
 		CompoundTag data = getTag(entityData);
 		ResourceLocation dimLocation = dim.location();
 
+		BlockPos usedPos;
 		if (dim == Level.END) {
 			BlockPos spawnPlatform = ServerLevel.END_SPAWN_POINT;
-			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, spawnPlatform);
+			usedPos = spawnPlatform;
 			data.putLong(Reference.MOD_PREFIX + dimLocation, spawnPlatform.asLong());
 		} else {
 			Component name = entityIn instanceof Player ? entityIn.getDisplayName() : entityIn.getName();
-			TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, position);
+			usedPos = position;
 			data.putLong(Reference.MOD_PREFIX + dimLocation, position.asLong());
 		}
+		TelePastries.LOGGER.debug("Setting {}'s position of {} to: {}", getEntityName(entityIn), dimLocation, usedPos);
 		entityData.put(Player.PERSISTED_NBT_TAG, data);
 	}
 
@@ -338,7 +308,7 @@ public class CakeTeleporter implements ITeleporter {
 	 * @param pos       the position the entity is trying to be spawned at
 	 * @param entity    the entity attempting to spawn at the location
 	 */
-	private static PortalInfo postProcessAndMake(ServerLevel destWorld, BlockPos pos, Entity entity) {
+	private static DimensionTransition postProcessAndMake(ServerLevel destWorld, BlockPos pos, Entity entity) {
 		// Set overworld back to respawn position when using cake.
 		if (destWorld.dimension() == Level.OVERWORLD) {
 			if (entity instanceof ServerPlayer serverPlayer) {
@@ -347,7 +317,7 @@ public class CakeTeleporter implements ITeleporter {
 		}
 
 		if (ModList.get().isLoaded("twilightforest")) {
-			ResourceKey<Level> twilightKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation("twilightforest", "twilight_forest"));
+			ResourceKey<Level> twilightKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("twilightforest", "twilight_forest"));
 			if (destWorld.dimension() == twilightKey) {
 				if (entity instanceof ServerPlayer serverPlayer) {
 					serverPlayer.setRespawnPosition(twilightKey, pos, serverPlayer.getYRot(), true, false);
@@ -356,7 +326,7 @@ public class CakeTeleporter implements ITeleporter {
 		}
 
 		if (ModList.get().isLoaded("lostcities")) {
-			ResourceKey<Level> lostCityKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation("lostcities", "lostcity"));
+			ResourceKey<Level> lostCityKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("lostcities", "lostcity"));
 			if (destWorld.dimension() == lostCityKey) {
 				if (entity instanceof ServerPlayer serverPlayer) {
 					serverPlayer.setRespawnPosition(lostCityKey, pos, serverPlayer.getYRot(), true, false);
@@ -364,18 +334,15 @@ public class CakeTeleporter implements ITeleporter {
 			}
 		}
 
-		return makePortalInfo(entity, pos);
+		return makePortalInfo(destWorld, entity, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	/**
-	 * Creates the portal info based on the given block position.
-	 *
-	 * @param entity the entity attempting to spawn at the location
-	 * @param pos    the position the entity is trying to be spawned at
-	 * @return the information necessary to teleport the entity
-	 */
-	private static PortalInfo makePortalInfo(Entity entity, BlockPos pos) {
-		return new PortalInfo(new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5), Vec3.ZERO, entity.getYRot(), entity.getXRot());
+	private static DimensionTransition makePortalInfo(ServerLevel destination, Entity entity, double x, double y, double z) {
+		return makePortalInfo(destination, entity, new Vec3(x, y, z));
+	}
+
+	private static DimensionTransition makePortalInfo(ServerLevel destination, Entity entity, Vec3 pos) {
+		return new DimensionTransition(destination, pos, Vec3.ZERO, entity.getYRot(), entity.getXRot(), DimensionTransition.DO_NOTHING);
 	}
 
 	/**
@@ -394,6 +361,6 @@ public class CakeTeleporter implements ITeleporter {
 		 * @return the portal information to teleport to, or {@code null} if there is none
 		 */
 		@Nullable
-		PortalInfo determineTeleportLocation(Entity entity, ServerLevel destWorld, Pair<Integer, Integer> minMaxBounds, Long2BooleanArrayMap cacheMap);
+		DimensionTransition determineTeleportLocation(Entity entity, ServerLevel destWorld, Pair<Integer, Integer> minMaxBounds, Long2BooleanArrayMap cacheMap);
 	}
 }

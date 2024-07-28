@@ -50,7 +50,7 @@ public class BlockLostCityCake extends BlockCakeBase {
 
 	@Override
 	public ResourceKey<Level> getCakeWorld() {
-		return ResourceKey.create(Registries.DIMENSION, new ResourceLocation("lostcities", "lostcity"));
+		return ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("lostcities", "lostcity"));
 	}
 
 	@Override

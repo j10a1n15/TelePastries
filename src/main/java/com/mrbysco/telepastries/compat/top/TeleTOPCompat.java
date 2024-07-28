@@ -37,7 +37,7 @@ public class TeleTOPCompat {
 
 		@Override
 		public ResourceLocation getID() {
-			return new ResourceLocation(Reference.MOD_ID, "main");
+			return ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "main");
 		}
 
 		@Override

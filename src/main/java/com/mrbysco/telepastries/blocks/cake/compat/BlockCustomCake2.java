@@ -54,7 +54,7 @@ public class BlockCustomCake2 extends BlockCakeBase {
 
 	@Override
 	public ResourceKey<Level> getCakeWorld() {
-		return ResourceKey.create(Registries.DIMENSION, new ResourceLocation(TeleConfig.COMMON.customCake2Dimension.get()));
+		return ResourceKey.create(Registries.DIMENSION, ResourceLocation.tryParse(TeleConfig.COMMON.customCake2Dimension.get()));
 	}
 
 	@Override

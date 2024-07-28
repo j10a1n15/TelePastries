@@ -27,7 +27,7 @@ public class TeleWailaCompat implements IWailaPlugin {
 	}
 
 	public static class PastryBodyHandler implements IBlockComponentProvider {
-		private static final ResourceLocation BITES = new ResourceLocation(Reference.MOD_ID, "bites");
+		private static final ResourceLocation BITES = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "bites");
 
 		public static final PastryBodyHandler INSTANCE = new PastryBodyHandler();
 

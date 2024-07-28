@@ -4,7 +4,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.gradle.userdev' version '7.0.155'
-    id 'net.darkhax.curseforgegradle' version '1.1.124'
+    id 'net.darkhax.curseforgegradle' version '1.1.24'
     id 'com.modrinth.minotaur' version "2.+"
 }
 
@@ -78,13 +78,13 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-//    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-//    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
 
-//    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
 
-    implementation "curse.maven:jade-324717:5366595" //Jade (WAILA)
-    compileOnly "curse.maven:TheOneProbe-245211:5304322" //The One Probe (TOP)
+    implementation "curse.maven:jade-324717:5572926" //Jade (WAILA)
+    compileOnly "curse.maven:TheOneProbe-245211:5502323" //The One Probe (TOP)
 
 //    runtimeOnly "teamtwilight:twilightforest:${twilight_forest_version}:universal"
 }

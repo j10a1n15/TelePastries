@@ -4,7 +4,7 @@ import com.mrbysco.telepastries.Reference;
 import com.mrbysco.telepastries.TelePastries;
 import com.mrbysco.telepastries.blocks.BlockPastryBase;
 import com.mrbysco.telepastries.config.TeleConfig;
-import com.mrbysco.telepastries.util.CakeTeleporter;
+import com.mrbysco.telepastries.util.CakeTeleportHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,7 +26,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -35,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -53,8 +53,6 @@ public class BlockCakeBase extends BlockPastryBase {
 			Block.box(9.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D),
 			Block.box(11.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D),
 			Block.box(13.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D)};
-
-	protected static final CakeTeleporter TELEPORTER = new CakeTeleporter();
 
 	public BlockCakeBase(BlockBehaviour.Properties properties) {
 		super(properties.strength(0.5F).sound(SoundType.WOOL).randomTicks());
@@ -172,10 +170,10 @@ public class BlockCakeBase extends BlockPastryBase {
 		return registryLocation != null && items.contains(registryLocation.toString());
 	}
 
-	public void teleportToDimension(LevelAccessor worldIn, BlockPos pos, Player player) {
-		if (player != null && !(player instanceof FakePlayer) && player.isAlive() && !worldIn.isClientSide()) {
-			Level world = ((ServerLevelAccessor) worldIn).getLevel();
-			if (!world.isClientSide && !player.isPassenger() && !player.isVehicle() && player.canChangeDimensions()) {
+	public void teleportToDimension(LevelAccessor levelAccessor, BlockPos pos, Player player) {
+		if (player != null && !(player instanceof FakePlayer) && player.isAlive() && !levelAccessor.isClientSide()) {
+			if (levelAccessor instanceof ServerLevel serverLevel && !player.isPassenger() && !player.isVehicle() &&
+					player.canChangeDimensions(player.level(), serverLevel)) {
 				ServerPlayer serverPlayer = (ServerPlayer) player;
 				MinecraftServer server = player.getServer();
 				ServerLevel destinationWorld = server != null ? server.getLevel(getCakeWorld()) : null;
@@ -185,8 +183,9 @@ public class BlockCakeBase extends BlockPastryBase {
 					return;
 				}
 
-				CakeTeleporter.addDimensionPosition(serverPlayer, serverPlayer.level().dimension(), serverPlayer.blockPosition());
-				serverPlayer.changeDimension(destinationWorld, TELEPORTER);
+				CakeTeleportHelper.addDimensionPosition(serverPlayer, serverPlayer.level().dimension(), serverPlayer.blockPosition());
+				DimensionTransition transition = CakeTeleportHelper.getCakeTeleportData(destinationWorld, serverPlayer);
+				serverPlayer.changeDimension(transition);
 			}
 		}
 	}
@@ -213,7 +212,8 @@ public class BlockCakeBase extends BlockPastryBase {
 		return true;
 	}
 
-	public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type) {
+	@Override
+	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
 		return false;
 	}
 
