@@ -1,1 +1,1 @@
-* Initial update to 1.21
+* Only fire the EntityTravelToDimensionEvent on server side
