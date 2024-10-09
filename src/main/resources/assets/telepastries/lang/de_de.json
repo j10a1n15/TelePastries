@@ -1,9 +1,9 @@
 
 {
-    "_comment": "Konfig",
+    "_comment": "Config",
     "telepastries.config.title": "TelePastries Konfig",
 
-    "_comment": "Kreativ Tab",
+    "_comment": "Creative Tab",
     "itemGroup.tele_tab": "TelePastries",
 
     "_comment": "Block",
@@ -18,7 +18,7 @@
     "block.telepastries.custom_cake2": "%s Kuchen",
     "block.telepastries.custom_cake3": "%s Kuchen",
 
-    "_comment": "Nachricht",
+    "_comment": "Message",
     "telepastries.pastry.reset.complete": "Dimension %s 's gespeicherte Position wurde zurückgesetzt..",
     "telepastries.pastry.reset.failed": "Dimension %s hat keine gespeicherte Position.",
     "telepastries.pastry.support.disabled": "Der Kuchen ist deaktiviert weil %s nicht installiert ist.",
